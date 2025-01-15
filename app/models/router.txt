@@ -1,0 +1,306 @@
+var express = require("express");
+var router = express.Router();
+var bodyParser = require('body-parser')
+router.use(bodyParser.urlencoded({ extended: true }));
+router.use(bodyParser.json());
+
+
+router.get("/", function (req, res) {
+    res.render("pages/cadastro", {pagina:"cadastro", logado:null});
+});
+
+router.get("/login", function (req, res) {
+
+
+    res.render("pages/login", {pagina:"login", logado:null});
+});
+
+router.get("/cadastro", function (req, res) {
+    res.render("pages/cadastro", { pagina: "cadastro", logado: null });
+});
+
+
+var pool = require("../../config/pool_conexoes");
+
+
+router.post("/cadastro", function (req, res) {
+    // Pegando os valores do formulário
+    const nome = req.body.nome_usuario;
+    const email = req.body.email_usuario;
+    const senha = req.body.senha_usuario;
+
+    // Validação simples
+    if (!nome || !email || !senha) {
+        return res.status(400).send('Todos os campos são obrigatórios.');
+    }
+
+    // Requerindo o pool de conexões
+    var pool = require("../../config/pool_conexoes");
+
+    // Query de inserção no banco de dados
+    console.log("cadastrando agora");
+    const query = 'INSERT INTO usuario (nome_usuario, email_usuario, senha_usuario) VALUES (?, ?, ?)';
+
+    // Inserindo no banco de dados
+  
+
+        // Criar a sessão após o cadastro bem-sucedido
+        req.session.usuario = {
+            email: email, // Usa a variável correta
+            nome_usuario: nome, // Usa o nome da variável já definido
+            logado: true
+        };
+        
+
+        // Redirecionar para a página inicial ou renderizar com mensagem de boas-vindas
+        /*const nomeUsuario = "seja bem-vindo " + nome; // agora usamos o nome do cadastro*/
+       //  res.render("pages/inicial", { nomeUsuario: nomeUsuario });
+          res.redirect("/inicial");
+
+          pool.query(query, [nome, email, senha], (err, result) => {
+            if (err) {
+                console.error('Erro ao cadastrar usuário:', err);
+               
+            }
+    });
+});
+
+
+
+
+router.post("/login", async (req, res) => {
+    try {
+        const { email, senha } = req.body;
+        var msgErro = "email ou senha incorreto";
+        req.session.email_usuario = email;
+        // Verificar se email e senha foram recebidos
+        if (!email || !senha) {
+            msgErro = {
+                email: !email ? "Email é obrigatório" : "",
+                senha: !senha ? "Senha é obrigatória" : ""
+            };
+            return res.render("pages/login", { msgErro: msgErro });
+        }
+
+        // Consulta ao banco de dados
+        const [rows] = await pool.query("SELECT * FROM usuario WHERE email_usuario = ?", [email]);
+
+        // Verificar se o email existe
+        if (rows.length === 0) {
+          //  msgErro = { email: "Email ou senha incorretos." };
+            return res.render("pages/login", { msgErro: "Email ou senha incorretos."  });
+        }
+
+        const usuario = rows[0];
+
+        // Verificar a senha (sem bcrypt, diretamente)
+        if (senha !== usuario.senha_usuario) {
+           // msgErro = { senha: "Email ou senha incorretos." };
+            return res.render("pages/login", { msgErro: "Email ou senha incorretos."  });
+        }
+
+        // Login bem-sucedido, salvar o nome e email na sessão
+        req.session.usuario = {
+            email: usuario.email_usuario,
+            nome_usuario: usuario.nome_usuario,  // Agora o nome é salvo corretamente
+            logado: true
+        };
+
+        // Redirecionar para a página de perfil
+        return res.redirect("/inicial");
+
+    } catch (error) {
+        console.error("Erro ao logar: ", error);
+        return res.render("pages/login", { msgErro: { email: "Erro no servidor." } });
+    }
+});
+
+
+
+
+router.post("/logout", (req, res) => {
+    // Destroi a sessão e redireciona para a página de login
+    req.session.destroy((err) => {
+        if (err) {
+            return res.redirect("/inicial"); // Se der erro, continua na página inicial
+        }
+        res.clearCookie('connect.sid'); // Remove o cookie da sessão
+        return res.redirect("/login"); // Redireciona para a página de login
+    });
+});
+
+
+
+router.get("/inicial", async (req, res) => {
+    // Verifica se o usuário está logado
+    if (!req.session.usuario || !req.session.usuario.logado) {
+        return res.redirect("/login");
+    }
+
+    // Exibe o conteúdo da sessão no console para depuração
+    console.log("Sessão do usuário:", req.session.usuario);
+
+    const userEmail = req.session.email_usuario;
+
+    try {
+ 
+        const [rows] = await pool.query(
+            "SELECT nome_usuario FROM usuario WHERE email_usuario = ?",
+            [userEmail]
+        );
+
+        if (rows.length > 0) {
+            const { nome_usuario } = rows[0];
+
+            
+            res.render("pages/inicial", {
+                pagina: "inicial",
+                logado: req.session.usuario.logado,
+                nome: nome_usuario
+                
+            });
+        } else {
+            res.status(404).send("Usuário não encontrado.");
+        }
+    } catch (error) {
+        console.error("Erro ao buscar dados do usuário:", error);
+        res.status(500).send("Erro ao buscar dados do usuário.");
+    }
+});
+
+
+
+
+/*
+router.get("/inicial", function (req, res) {
+    if (!req.session.usuario || !req.session.usuario.logado) {
+        return res.redirect("/login");
+    }
+    res.render("pages/inicial", {
+        pagina: "inicial",
+        logado: req.session.usuario.logado,
+        usuario: req.session.usuario
+    });
+});*/
+
+router.get("/configuracoes", function (req, res) {
+    if (!req.session.usuario || !req.session.usuario.logado) {
+        return res.redirect("/login");
+    }
+    res.render("pages/configuracoes", {pagina:"configuracoes", logado: req.session.usuario.logado,
+        usuario: req.session.usuario});
+});
+
+
+
+
+
+
+
+
+
+
+router.post('/updateusername', async (req, res) => {
+    const { username} = req.body;
+   // const userEmail =   req.session.userEmail; // Pegando o email da sessão
+   const userEmail = req.session.email_usuario;
+
+    if (!userEmail) {
+      return res.status(401).send("Usuário não autenticado.");
+    }
+
+    try {
+        const [rows] = await pool.query(
+            "UPDATE usuario SET nome_usuario = ? WHERE email_usuario = ?",
+            [username, userEmail]
+          );
+          
+  
+      if (rows.affectedRows > 0) {
+        res.redirect('/inicial'); // Redireciona para a página de configuração ou outra página após salvar
+      } else {
+        res.status(404).send("Usuário não encontrado.");
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).send("Erro ao atualizar o nome do usuário.");
+    }
+  });
+
+
+
+
+
+  
+  router.post('/updatenovasenha', async (req, res) => {
+    
+    try {
+        const { velha, novasenha } = req.body;
+        const emailUsuario = req.session.email_usuario;
+
+        // Verifique se o usuário está autenticado
+        if (!emailUsuario) {
+            return res.status(401).send('Usuário não autenticado');
+        }
+
+        // Verifique se a senha antiga confere
+        const [rows] = await pool.query('SELECT senha_usuario FROM usuario WHERE email_usuario = ?', [emailUsuario]);
+        const usuario = rows[0];
+
+        if (!usuario || usuario.senha_usuario !== velha) {
+            return res.status(400).send('Senha antiga incorreta');
+        }
+
+        // Atualize a senha
+        await pool.query('UPDATE usuario SET senha_usuario = ? WHERE email_usuario = ?', [novasenha, emailUsuario]);
+
+        res.redirect('/inicial');
+    } catch (error) {
+        console.error('Erro ao atualizar senha:', error);
+        res.status(500).send('Erro no servidor');
+    }
+});
+  
+  
+
+router.post('/updateusername', async (req, res) => {
+    const { username, descricao } = req.body;
+   // const userEmail =   req.session.userEmail; // Pegando o email da sessão
+   const userEmail = req.session.email_usuario;
+
+    if (!userEmail) {
+      return res.status(401).send("Usuário não autenticado.");
+    }
+
+    try {
+        const [rows] = await pool.query(
+            "UPDATE usuario SET nome_usuario = ?,  WHERE email_usuario = ?",
+            [username,  userEmail]
+          );
+          
+  
+      if (rows.affectedRows > 0) {
+        res.redirect('/inicial'); // Redireciona para a página de configuração ou outra página após salvar
+      } else {
+        res.status(404).send("Usuário não encontrado.");
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).send("Erro ao atualizar o nome do usuário.");
+    }
+  });
+
+    router.post("/logout", (req, res) => {
+
+    req.session.destroy((err) => {
+        if (err) {
+            return res.redirect("/inicial"); 
+        }
+        res.clearCookie('connect.sid'); 
+        return res.redirect("/login"); 
+    });
+});
+
+module.exports = router;
+
+

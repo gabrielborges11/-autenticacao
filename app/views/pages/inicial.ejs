@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="PT-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>perfil</title>
+    <link rel="stylesheet" href="/CSS/inicial.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-notify@1.0.4/dist/simple-notify.css">
+   
+</head>
+<body>
+
+
+<div >
+   <h3>seja bem-vindo</h3>  <h3 id="userName"><%= nome %></h3> 
+</div>
+
+<button onclick=" abrirMenu()">alterar nome</button>
+<button onclick=" abrirMenu2()">alterar senha</button>
+<form action="/logout" method="POST">
+<button>sair</button>
+</form>
+
+<div class="nome" id="menu">
+    <form action="/updateusername" method="POST">
+        <label for="username">Nome de usuário:</label>
+
+        <input type="text" id="username" name="username" value="Nome de usuário">
+    
+          <br>
+        <div class="orgsenha" style="margin-left:45%; display:flex;">
+        <button type="button" onclick="abrirMenu()">Cancelar</button>
+        <button type="submit">Salvar</button>
+        </div>
+      </form>
+</div>
+
+<div class="menu2" id="menu2">
+    <form action="/updatenovasenha" method="POST" id="formSenha">
+        <label for="velha">Digite a antiga senha:</label>
+        <br>
+        <input type="password" placeholder="Antiga senha" id="velha" name="velha" required>
+        <br>
+        <label for="nova">Digite a nova senha:</label>
+        <br>
+        <input type="password" id="nova" placeholder="Nova senha" name="novasenha" required>
+        <br>
+        <label for="confirmeSenha">Confirme a nova senha:</label>
+        <br>
+        <input type="password" id="confirmeSenha" placeholder="Confirme" name="confirmesenha" required>
+        <br>
+        <div class="orgsenha" style="margin-left:45%;">
+            <button type="button" onclick="abrirMenu2()">Cancelar</button>
+            <button type="submit" onclick="return validarSenhas()">Finalizar</button>
+        </div>
+    </form>
+</div>
+
+
+
+<style>
+
+    .nome{
+        display:none;
+    }
+
+    div{
+        display:flex; 
+        gap:10px;
+    }
+
+    .menu2{
+        display:none;
+    }
+</style>
+
+<script src="/js/display.js"></script>
+<script src="/js/validaSenha.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/simple-notify@1.0.4/dist/simple-notify.min.js"></script>
+
+</body>
+</html>

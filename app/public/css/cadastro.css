@@ -1,0 +1,114 @@
+body{
+    background-color: #abcdef;
+    background-image:url("../img/paisagem.jpg");
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .logo{
+        width:70px;
+        height:90px;
+        margin-left:10px;
+        cursor:pointer;
+    }
+
+.box{
+  margin-left:30%;
+  margin-top:50px;
+  width:40%;
+  height:500px;
+  background: rgba( 255, 255, 255, 0.35 );
+  box-shadow: 0 8px 32px 0 rgba( 31, 38, 135, 0.37 );
+  backdrop-filter: blur( 13.5px );
+  -webkit-backdrop-filter: blur( 13.5px );
+  border-radius: 10px;
+  border: 1px solid rgba( 255, 255, 255, 0.18 );
+      }
+
+h2{
+    text-align:center;
+    margin-top:20px;
+}
+
+form{
+    display:flex;
+    flex-direction: column;
+    position: relative;
+    margin-top:20px;
+    
+}
+
+input{
+    width:50%;
+    margin-top:10px;
+    height:30px;
+    margin-left:25%;
+    position: relative;
+    border-radius: 20px;
+    border:none;
+    border:solid 1px rgb(43, 42, 42);
+    background-color: transparent;
+    text-align: center;
+}
+
+input::placeholder{
+    text-align: center;
+    color:rgb(43, 42, 42);
+}
+
+
+.enviar{
+    border-radius: 20px;
+    width:51%;
+    cursor:pointer;
+    background-color: black;
+    color:white;
+    border:none;
+    height:40px;
+    font-size: 17px;
+    margin-top:30px;
+}
+
+.enviar:hover{
+    background-color: white;
+    color:black;
+    border:none;
+    transition: 1s;
+}
+
+label{
+    font-size:13px;
+    margin-left:30%;
+    position:relative;
+}
+
+.sep{
+    margin-top:10px;
+}
+
+.cliqueAqui{
+    font-size:12.5px;
+    margin-left:35%;
+    position:relative;
+    margin-top:15px;
+}
+
+a{
+    text-decoration: none;
+    color:blue;
+}
+
+a:hover{
+    color:white;
+}
+
+@media(max-width: 800px ){
+
+
+    .box{
+        width:80%;
+       margin-left:10%;
+    }
+}

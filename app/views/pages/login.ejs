@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="PT-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>login</title>
+    <link rel="stylesheet" href="/CSS/login.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-notify@1.0.4/dist/simple-notify.css">
+</head>
+<body>
+
+
+
+    <div class="box">
+        <h2>login</h2>
+        <form action="/login" method="POST">
+            <input type="email" id="email" placeholder="email" name="email" >
+            <input type="password" id="senha" placeholder="senha" name="senha" >
+          <p style="text-align:center;" class="errado"><%= locals.msgErro %></p>  
+        
+            <input type="submit" value="login">
+        </form>
+        
+
+      <div class="aqui">
+      <p class="cliqueAqui">não tem uma conta? <a href="/"> clique aqui</a></p>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/simple-notify@1.0.4/dist/simple-notify.min.js"></script>
+
+    <script>
+
+   function notificacao(){
+    new Notify({
+        status: 'error',
+        title: 'Erro',
+        text: 'preencha os campos',
+        effect: 'fade',
+        speed: 300,
+        autoclose: true,
+        autotimeout: 2000,
+        position: 'center',
+        gap: 50
+    });
+   }
+
+   document.addEventListener("submit", (event) => {
+   // Captura os valores dos campos dentro do evento
+   var email = document.getElementById('email').value;
+   var senha = document.getElementById('senha').value;
+
+   // Verifica se os campos estão vazios
+   if (email == "" && senha == "") {
+      event.preventDefault(); // Evita o envio do formulário
+      notificacao(); // Função de notificação (você deve definir esta função)
+   }
+});
+
+
+    </script>
+</body>
+</html>
